@@ -647,6 +647,10 @@ int hibernate(void)
 	error = hibernation_snapshot(hibernation_mode == HIBERNATION_PLATFORM);
 	if (error || freezer_test_done)
 		goto Thaw;
+	if (freezer_test_done) {
+		freezer_test_done = false;
+		goto Thaw;
+	}
 
 	if (in_suspend) {
 		unsigned int flags = 0;

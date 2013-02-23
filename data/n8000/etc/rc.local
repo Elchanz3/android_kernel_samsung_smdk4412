@@ -1,0 +1,67 @@
+#!/bin/sh
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+echo 4 > /proc/cpu/alignment
+
+echo 1 > /sys/class/backlight/panel/dimming
+
+#restore lcd brightness
+cat /var/lib/local/brightness.state > /sys/class/backlight/panel/brightness&
+
+echo 3 > /sys/module/cpuidle_exynos4/parameters/enable_mask 
+
+# disable usb host power
+#echo 0 > /sys/devices/platform/s5p-ehci/ehci_power
+
+# "reset" bluetooth
+#rfkill block 0
+#rfkill unblock 0
+
+# run bluetooth helper
+#/system/bin/brcm_patchram_plus --bd_addr `cat /etc/bluetooth/bt_addr` --enable_hci --enable_lpm --no2bytes --tosleep 50000 --baudrate 4000000 --use_baudrate_for_download --patchram /lib/firmware/bcm4334.hcd --i2s=1,0,0,0  /dev/ttySAC0&
+
+# enable wakelocks
+echo "power-supply" > /sys/power/wake_lock
+echo "batt_work wake lock" > /sys/power/wake_lock
+echo "fullcharge wake lock" > /sys/power/wake_lock
+echo "sec_jack_det" > /sys/power/wake_lock
+echo "mmc0_detect" > /sys/power/wake_lock
+echo "mmc1_detect" > /sys/power/wake_lock
+
+# some hack
+echo 'cfq' > /sys/block/mmcblk0/queue/scheduler
+echo 'cfq' > /sys/block/mmcblk1/queue/scheduler
+echo 2048 > /sys/block/mmcblk0/queue/read_ahead_kb
+echo 2048 > /sys/block/mmcblk1/queue/read_ahead_kb
+echo '-1' > /sys/power/cpufreq_min_limit
+
+echo '116' > /sys/class/sec/sec_key/wakeup_keys
+
+# set wacom sampling rate
+echo 133 > /sys/class/sec/sec_epen/epen_sampling_rate
+
+# allow user access to vibrator (current use for haptic feedback with my patch for florance on-screen keyboard)
+chmod 0666 /sys/class/timed_output/vibrator/enable
+
+# restart bluetoothd after bluetooth helper
+#/etc/init.d/bluetooth restart&
+
+# restore alsa sinitial tate
+/usr/sbin/alsactl restore -f /usr/share/alsa/ucm/Midas_WM1811/init.state
+
+# enable speaker for output and builtin mic for input
+/usr/bin/alsaucm -c Midas_WM1811 set _verb Playback set _enadev Speaker
+/usr/bin/alsaucm -c Midas_WM1811 set _verb Capture set _enadev Mic
+
+exit 0
+

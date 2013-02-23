@@ -1,0 +1,82 @@
+SectionVerb {
+  EnableSequence [
+    cdev "hw:MidasWM1811"
+  ]
+
+  DisableSequence [
+    cdev "hw:MidasWM1811"
+  ]
+
+  Value {
+    TQ "Music"
+    CapturePCM "hw:MidasWM1811,3"
+    PlaybackPCM "hw:MidasWM1811,0"
+  }
+}
+
+SectionDevice."Speaker" {
+  Comment "Builtin speaker"
+
+  EnableSequence [
+    cdev "hw:MidasWM1811"
+    cset "name='SPK Switch' 1"
+  ]
+
+  DisableSequence [
+    cdev "hw:MidasWM1811"
+    cset "name='SPK Switch' 0"
+  ]
+}
+
+SectionDevice."Headset" {
+  Comment "3.5mm Headset"
+
+  EnableSequence [
+    cdev "hw:MidasWM1811"
+    cset "name='HP Switch' 1"
+  ]
+
+  DisableSequence [
+    cdev "hw:MidasWM1811"
+    cset "name='HP Switch' 0"
+  ]
+}
+
+SectionModifier."HiFi" {
+  Comment "HiFi Mode"
+
+  SupportedDevice [
+    "Headset"
+    "Speaker"
+  ]
+
+  EnableSequence [
+    cdev "hw:MidasWM1811"
+    cset "name='DAC OSR' 1"
+  ]
+ 
+  DisableSequence [
+    cdev "hw:MidasWM1811"
+    cset "name='DAC OSR' 0"
+  ]
+}
+
+SectionModifier."LP" {
+  Comment "Low Power Mode"
+
+  SupportedDevice [
+    "Headset"
+    "Speaker"
+  ]
+
+  EnableSequence [
+    cdev "hw:MidasWM1811"
+    cset "name='DAC OSR' 0"
+  ]
+ 
+  DisableSequence [
+    cdev "hw:MidasWM1811"
+    cset "name='DAC OSR' 1"
+  ]
+}
+

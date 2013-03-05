@@ -1,0 +1,160 @@
+--- florence-0.6.0.orig/src/key.h
++++ florence-0.6.0/src/key.h
+@@ -144,5 +144,9 @@ enum key_action_type key_action_type_get
+ /* return the action type for the key and the status globalmod */
+ enum key_action_type key_get_action(struct key *key, struct status *status);
+ 
++#ifdef __linux__
++#define HAPTIC_FEEDBACK_ENABLE "/sys/class/timed_output/vibrator/enable"
++#endif
++
+ #endif
+ 
+--- florence-0.6.0.orig/src/settings.h
++++ florence-0.6.0/src/settings.h
+@@ -73,6 +73,10 @@ enum settings_item {
+ 	SETTINGS_SCALEX,
+ 	SETTINGS_SCALEY,
+ 	SETTINGS_FOCUS_ZOOM,
++#ifdef __linux__
++	SETTINGS_HAPTIC_FEEDBACK,
++	SETTINGS_HAPTIC_FEEDBACK_DURATION,
++#endif
+ 	SETTINGS_SOUNDS,
+ 	SETTINGS_SYSTEM_FONT,
+ 	SETTINGS_FONT,
+--- florence-0.6.0.orig/src/settings.c
++++ florence-0.6.0/src/settings.c
+@@ -98,6 +98,10 @@ static const struct settings_param setti
+ 	{ SETTINGS_WINDOW, SETTINGS_NONE, "scalex", SETTINGS_DOUBLE, { .vdouble = 20. } },
+ 	{ SETTINGS_WINDOW, SETTINGS_NONE, "scaley", SETTINGS_DOUBLE, { .vdouble = 20. } },
+ 	{ SETTINGS_STYLE, "flo_focus_zoom", "focus-zoom", SETTINGS_DOUBLE, { .vdouble = 1.3 } },
++#ifdef __linux__
++	{ SETTINGS_STYLE, "flo_haptic_feedback", "haptic-feedback", SETTINGS_BOOL, { .vbool = FALSE } },
++	{ SETTINGS_STYLE, "flo_haptic_feedback_duration", "haptic-feedback-duration", SETTINGS_INTEGER, { .vinteger = 25 } },
++#endif
+ 	{ SETTINGS_STYLE, "flo_sounds", "sounds", SETTINGS_BOOL, { .vbool = TRUE } },
+ 	{ SETTINGS_STYLE, "flo_system_font", "system-font", SETTINGS_BOOL, { .vbool = TRUE } },
+ 	{ SETTINGS_STYLE, "flo_font", "font", SETTINGS_STRING, { .vstring = "sans 10" } },
+--- florence-0.6.0.orig/src/key.c
++++ florence-0.6.0/src/key.c
+@@ -294,6 +294,17 @@ void key_press(struct key *key, struct s
+ 							((struct key_code *)mod->data)->code,
+ 							status_globalmod_get(status))),
+ 						STYLE_SOUND_PRESS);
++#ifdef __linux__
++				if (settings_get_bool(SETTINGS_HAPTIC_FEEDBACK) && status->view) {
++					FILE *vibrator=fopen(HAPTIC_FEEDBACK_ENABLE, "w");
++
++					if (vibrator) {
++						fprintf(vibrator, "%i", settings_get_int(SETTINGS_HAPTIC_FEEDBACK_DURATION));
++
++						fclose(vibrator);
++					}
++				}
++#endif
+ 				break;
+ 			case KEY_ACTION:
+ 				action=(struct key_action *)mod->data;
+@@ -311,6 +322,17 @@ void key_press(struct key *key, struct s
+ 							style_sound_play(status->view->style,
+ 								key_actions[action->type],
+ 								STYLE_SOUND_PRESS);
++#ifdef __linux__
++						if (settings_get_bool(SETTINGS_HAPTIC_FEEDBACK) && status->view) {
++							FILE *vibrator=fopen(HAPTIC_FEEDBACK_ENABLE, "w");
++
++							if (vibrator) {
++								fprintf(vibrator, "%i", settings_get_int(SETTINGS_HAPTIC_FEEDBACK_DURATION));
++
++								fclose(vibrator);
++							}
++						}
++#endif
+ 						break;
+ 					default: flo_warn(_("unknown action key type pressed = %d"), action->type);
+ 				}
+--- florence-0.6.0.orig/data/org.florence.gschema.xml.in
++++ florence-0.6.0/data/org.florence.gschema.xml.in
+@@ -195,6 +195,16 @@
+       <_summary>scaling factor of the focused key</_summary>
+       <_description>scaling factor of the focused key</_description>
+     </key>
++    <key name="haptic-feedback" type="b">
++      <default>false</default>
++      <_summary>activate haptic</_summary>
++      <_description>enable haptic feedback when a key is pressed</_description>
++    </key>
++    <key name="haptic-feedback-duration" type="i">
++      <default>25</default>
++      <_summary>haptic duration</_summary>
++      <_description>haptic feedback duration</_description>
++    </key>
+     <key name="sounds" type="b">
+       <default>true</default>
+       <_summary>activate sound</_summary>
+--- florence-0.6.0.orig/data/florence.glade
++++ florence-0.6.0/data/florence.glade
+@@ -311,6 +311,44 @@
+                   </packing>
+                 </child>
+                 <child>
++                  <object class="GtkFrame" id="haptic_feedback_frame">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="label_xalign">0</property>
++                    <child>
++                      <object class="GtkAlignment" id="haptic_feedback_frame_alignment">
++                        <property name="visible">True</property>
++                        <property name="can_focus">False</property>
++                        <property name="left_padding">12</property>
++                        <child>
++                          <object class="GtkCheckButton" id="flo_haptic_feedback">
++                            <property name="label" translatable="yes">Enable haptic feedback	</property>
++                            <property name="use_action_appearance">False</property>
++                            <property name="visible">True</property>
++                            <property name="can_focus">True</property>
++                            <property name="receives_default">False</property>
++                            <property name="draw_indicator">True</property>
++                            <signal name="toggled" handler="settings_window_set_bool" swapped="no"/>
++                          </object>
++                        </child>
++                      </object>
++                    </child>
++                    <child type="label">
++                      <object class="GtkLabel" id="haptic_feedback_frame_label">
++                        <property name="visible">True</property>
++                        <property name="can_focus">False</property>
++                        <property name="label" translatable="yes">haptic feedback</property>
++                        <property name="use_markup">True</property>
++                      </object>
++                    </child>
++                  </object>
++                  <packing>
++                    <property name="expand">False</property>
++                    <property name="fill">False</property>
++                    <property name="position">3</property>
++                  </packing>
++                </child>
++                <child>
+                   <object class="GtkFrame" id="frame3">
+                     <property name="visible">True</property>
+                     <property name="can_focus">False</property>
+@@ -345,7 +383,7 @@
+                   <packing>
+                     <property name="expand">False</property>
+                     <property name="fill">False</property>
+-                    <property name="position">3</property>
++                    <property name="position">4</property>
+                   </packing>
+                 </child>
+                 <child>
+@@ -431,7 +469,7 @@
+                   <packing>
+                     <property name="expand">False</property>
+                     <property name="fill">False</property>
+-                    <property name="position">4</property>
++                    <property name="position">5</property>
+                   </packing>
+                 </child>
+               </object>

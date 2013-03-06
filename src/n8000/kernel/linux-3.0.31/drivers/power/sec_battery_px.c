@@ -1433,11 +1433,11 @@ static int sec_bat_get_property(struct power_supply *bat_ps,
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_NOW:
 	case POWER_SUPPLY_PROP_POWER_NOW:
-		val->intval = - battery->info.batt_current * 1000;
+		val->intval = abs(battery->info.batt_current) * 1000;
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_AVG:
 	case POWER_SUPPLY_PROP_POWER_AVG:
-		val->intval = - battery->info.batt_current_avg * 1000;
+		val->intval = abs(battery->info.batt_current_avg) * 1000;
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY:
 #if defined(CONFIG_MACH_P4NOTE)

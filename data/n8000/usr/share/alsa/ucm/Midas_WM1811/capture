@@ -11,6 +11,9 @@ SectionVerb {
     TQ "Music"
     CapturePCM "hw:MidasWM1811,3"
     PlaybackPCM "hw:MidasWM1811,0"
+
+    PlaybackChannels "2"
+    CaptureChannels "2"
   }
 }
 
@@ -50,6 +53,15 @@ SectionDevice."Mic" {
     cset "name='IN1L PGA IN1LN Switch' 0"
     cset "name='IN1L PGA IN1LP Switch' 0"
   ]
+
+  Value {
+    TQ "Music"
+    CapturePCM "hw:MidasWM1811,3"
+    PlaybackPCM "hw:MidasWM1811,0"
+
+    PlaybackChannels "2"
+    CaptureChannels "2"
+  }
 }
 
 SectionDevice."Headset" {
@@ -88,6 +100,15 @@ SectionDevice."Headset" {
     cset "name='IN1R PGA IN1RN Switch' 0"
     cset "name='IN1R PGA IN1RP Switch' 0"
   ]
+
+  Value {
+    TQ "Music"
+    CapturePCM "hw:MidasWM1811,3"
+    PlaybackPCM "hw:MidasWM1811,0"
+
+    PlaybackChannels "2"
+    CaptureChannels "2"
+  }
 }
 
 SectionModifier."HiFi" {

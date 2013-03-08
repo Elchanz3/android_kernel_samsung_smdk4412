@@ -11,6 +11,9 @@ SectionVerb {
     TQ "Music"
     CapturePCM "hw:MidasWM1811,3"
     PlaybackPCM "hw:MidasWM1811,0"
+
+    PlaybackChannels "2"
+    CaptureChannels "2"
   }
 }
 
@@ -26,6 +29,15 @@ SectionDevice."Speaker" {
     cdev "hw:MidasWM1811"
     cset "name='SPK Switch' 0"
   ]
+
+  Value {
+    TQ "Music"
+    CapturePCM "hw:MidasWM1811,3"
+    PlaybackPCM "hw:MidasWM1811,0"
+
+    PlaybackChannels "2"
+    CaptureChannels "2"
+  }
 }
 
 SectionDevice."Headset" {
@@ -40,6 +52,15 @@ SectionDevice."Headset" {
     cdev "hw:MidasWM1811"
     cset "name='HP Switch' 0"
   ]
+
+  Value {
+    TQ "Music"
+    CapturePCM "hw:MidasWM1811,3"
+    PlaybackPCM "hw:MidasWM1811,0"
+
+    PlaybackChannels "2"
+    CaptureChannels "2"
+  }
 }
 
 SectionModifier."HiFi" {

@@ -311,6 +311,7 @@ struct sock {
 	int			sk_wmem_queued;
 	gfp_t			sk_allocation;
 	u32			sk_pacing_rate; /* bytes per second */
+	u32			sk_max_pacing_rate;
 	int			sk_route_caps;
 	int			sk_route_nocaps;
 	int			sk_gso_type;

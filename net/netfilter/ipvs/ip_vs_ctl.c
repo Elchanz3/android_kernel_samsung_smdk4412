@@ -836,7 +836,7 @@ ip_vs_new_dest(struct ip_vs_service *svc, struct ip_vs_dest_user_kern *udest,
 	       struct ip_vs_dest **dest_p)
 {
 	struct ip_vs_dest *dest;
-	unsigned atype;
+	unsigned int atype, i;
 
 	EnterFunction(2);
 
@@ -864,6 +864,12 @@ ip_vs_new_dest(struct ip_vs_service *svc, struct ip_vs_dest_user_kern *udest,
 	if (!dest->stats.cpustats) {
 		pr_err("%s() alloc_percpu failed\n", __func__);
 		goto err_alloc;
+	}
+
+	for_each_possible_cpu(i) {
+		struct ip_vs_cpu_stats *ip_vs_dest_stats;
+		ip_vs_dest_stats = per_cpu_ptr(dest->stats.cpustats, i);
+		u64_stats_init(&ip_vs_dest_stats->syncp);
 	}
 
 	dest->af = svc->af;
@@ -1127,7 +1133,7 @@ static int
 ip_vs_add_service(struct net *net, struct ip_vs_service_user_kern *u,
 		  struct ip_vs_service **svc_p)
 {
-	int ret = 0;
+	int ret = 0, i;
 	struct ip_vs_scheduler *sched = NULL;
 	struct ip_vs_pe *pe = NULL;
 	struct ip_vs_service *svc = NULL;
@@ -1171,6 +1177,12 @@ ip_vs_add_service(struct net *net, struct ip_vs_service_user_kern *u,
 	if (!svc->stats.cpustats) {
 		pr_err("%s() alloc_percpu failed\n", __func__);
 		goto out_err;
+	}
+
+	for_each_possible_cpu(i) {
+		struct ip_vs_cpu_stats *ip_vs_stats;
+		ip_vs_stats = per_cpu_ptr(svc->stats.cpustats, i);
+		u64_stats_init(&ip_vs_stats->syncp);
 	}
 
 	/* I'm the first user of the service */
@@ -3599,7 +3611,7 @@ static void ip_vs_genl_unregister(void)
 #ifdef CONFIG_SYSCTL
 int __net_init __ip_vs_control_init_sysctl(struct net *net)
 {
-	int idx;
+	int i, idx;
 	struct netns_ipvs *ipvs = net_ipvs(net);
 	struct ctl_table *tbl;
 
@@ -3697,6 +3709,13 @@ int __net_init __ip_vs_control_init(struct net *net)
 		pr_err("%s(): alloc_percpu.\n", __func__);
 		return -ENOMEM;
 	}
+
+	for_each_possible_cpu(i) {
+		struct ip_vs_cpu_stats *ipvs_tot_stats;
+		ipvs_tot_stats = per_cpu_ptr(ipvs->tot_stats.cpustats, i);
+		u64_stats_init(&ipvs_tot_stats->syncp);
+	}
+
 	spin_lock_init(&ipvs->tot_stats.lock);
 
 	proc_net_fops_create(net, "ip_vs", 0, &ip_vs_info_fops);

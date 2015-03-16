@@ -61,6 +61,7 @@
 #include <linux/atomic.h>
 #include <net/dst.h>
 #include <net/checksum.h>
+#include <net/tcp_states.h>
 
 /*
  * This structure really needs to be cleaned up.
@@ -346,7 +347,7 @@ struct sock {
 	void			(*sk_write_space)(struct sock *sk);
 	void			(*sk_error_report)(struct sock *sk);
   	int			(*sk_backlog_rcv)(struct sock *sk,
-						  struct sk_buff *skb);  
+						  struct sk_buff *skb);
 	void                    (*sk_destruct)(struct sock *sk);
 };
 
@@ -739,10 +740,10 @@ static inline void sk_prot_clear_nulls(struct sock *sk, int size)
  * transport -> network interface is defined by struct inet_proto
  */
 struct proto {
-	void			(*close)(struct sock *sk, 
+	void			(*close)(struct sock *sk,
 					long timeout);
 	int			(*connect)(struct sock *sk,
-				        struct sockaddr *uaddr, 
+				        struct sockaddr *uaddr,
 					int addr_len);
 	int			(*disconnect)(struct sock *sk, int flags);
 
@@ -753,12 +754,12 @@ struct proto {
 	int			(*init)(struct sock *sk);
 	void			(*destroy)(struct sock *sk);
 	void			(*shutdown)(struct sock *sk, int how);
-	int			(*setsockopt)(struct sock *sk, int level, 
+	int			(*setsockopt)(struct sock *sk, int level,
 					int optname, char __user *optval,
 					unsigned int optlen);
-	int			(*getsockopt)(struct sock *sk, int level, 
-					int optname, char __user *optval, 
-					int __user *option);  	 
+	int			(*getsockopt)(struct sock *sk, int level,
+					int optname, char __user *optval,
+					int __user *option);
 #ifdef CONFIG_COMPAT
 	int			(*compat_setsockopt)(struct sock *sk,
 					int level,
@@ -775,14 +776,14 @@ struct proto {
 					   struct msghdr *msg, size_t len);
 	int			(*recvmsg)(struct kiocb *iocb, struct sock *sk,
 					   struct msghdr *msg,
-					size_t len, int noblock, int flags, 
+					size_t len, int noblock, int flags,
 					int *addr_len);
 	int			(*sendpage)(struct sock *sk, struct page *page,
 					int offset, size_t size, int flags);
-	int			(*bind)(struct sock *sk, 
+	int			(*bind)(struct sock *sk,
 					struct sockaddr *uaddr, int addr_len);
 
-	int			(*backlog_rcv) (struct sock *sk, 
+	int			(*backlog_rcv) (struct sock *sk,
 						struct sk_buff *skb);
 
 	/* Keeping track of sk's, looking them up, and port selection methods. */
@@ -1111,7 +1112,7 @@ extern int			sock_setsockopt(struct socket *sock, int level,
 						unsigned int optlen);
 
 extern int			sock_getsockopt(struct socket *sock, int level,
-						int op, char __user *optval, 
+						int op, char __user *optval,
 						int __user *optlen);
 extern struct sk_buff 		*sock_alloc_send_skb(struct sock *sk,
 						     unsigned long size,
@@ -1139,7 +1140,7 @@ static inline void sock_update_classid(struct sock *sk)
  * Functions to fill in entries in struct proto_ops when a protocol
  * does not implement a particular function.
  */
-extern int                      sock_no_bind(struct socket *, 
+extern int                      sock_no_bind(struct socket *,
 					     struct sockaddr *, int);
 extern int                      sock_no_connect(struct socket *,
 						struct sockaddr *, int, int);
@@ -1168,7 +1169,7 @@ extern int			sock_no_mmap(struct file *file,
 					     struct vm_area_struct *vma);
 extern ssize_t			sock_no_sendpage(struct socket *sock,
 						struct page *page,
-						int offset, size_t size, 
+						int offset, size_t size,
 						int flags);
 
 /*
@@ -1191,7 +1192,7 @@ extern void sk_common_release(struct sock *sk);
 /*
  *	Default socket callbacks and setup code
  */
- 
+
 /* Initialise core socket variables */
 extern void sock_init_data(struct socket *sock, struct sock *sk);
 
@@ -1625,7 +1626,7 @@ extern int sock_queue_err_skb(struct sock *sk, struct sk_buff *skb);
 /*
  *	Recover an error report and clear atomically
  */
- 
+
 static inline int sock_error(struct sock *sk)
 {
 	int err;
@@ -1641,7 +1642,7 @@ static inline unsigned long sock_wspace(struct sock *sk)
 
 	if (!(sk->sk_shutdown & SEND_SHUTDOWN)) {
 		amt = sk->sk_sndbuf - atomic_read(&sk->sk_wmem_alloc);
-		if (amt < 0) 
+		if (amt < 0)
 			amt = 0;
 	}
 	return amt;
@@ -1685,7 +1686,7 @@ static inline struct page *sk_stream_alloc_page(struct sock *sk)
 /*
  *	Default write policy as shown to user space via poll/select/SIGIO
  */
-static inline int sock_writeable(const struct sock *sk) 
+static inline int sock_writeable(const struct sock *sk)
 {
 	return atomic_read(&sk->sk_wmem_alloc) < (sk->sk_sndbuf >> 1);
 }
@@ -1840,12 +1841,21 @@ static inline struct sock *skb_steal_sock(struct sk_buff *skb)
 	return NULL;
 }
 
+/* This helper checks if a socket is a full socket,
+ * ie _not_ a timewait or request socket.
+ * TODO: Check for TCPF_NEW_SYN_RECV when that starts to exist.
+ */
+static inline bool sk_fullsock(const struct sock *sk)
+{
+	return (1 << sk->sk_state) & ~(TCPF_TIME_WAIT);
+}
+
 extern void sock_enable_timestamp(struct sock *sk, int flag);
 extern int sock_get_timestamp(struct sock *, struct timeval __user *);
 extern int sock_get_timestampns(struct sock *, struct timespec __user *);
 
-/* 
- *	Enable debug/info messages 
+/*
+ *	Enable debug/info messages
  */
 extern int net_msg_warn;
 #define NETDEBUG(fmt, args...) \

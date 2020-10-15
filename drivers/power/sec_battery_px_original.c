@@ -24,7 +24,7 @@
 #include <linux/jiffies.h>
 #include <linux/irq.h>
 #include <linux/wakelock.h>
-#include <linux/alarmtimer.h>
+#include <linux/android_alarm.h>
 #include <asm/mach-types.h>
 #include <mach/hardware.h>
 #include <linux/earlysuspend.h>
@@ -276,7 +276,7 @@ static void sec_set_charging(struct battery_data *battery, int charger_type)
 }
 #endif
 
-static enum alarmtimer_restart battery_event_alarm(struct alarm *alarm, ktime_t now)
+static void sec_battery_alarm(struct alarm *alarm)
 {
 	struct battery_data *battery =
 			container_of(alarm, struct battery_data, alarm);
@@ -284,18 +284,17 @@ static enum alarmtimer_restart battery_event_alarm(struct alarm *alarm, ktime_t 
 	pr_debug("%s : sec_battery_alarm.....\n", __func__);
 	wake_lock(&battery->work_wake_lock);
 	schedule_work(&battery->battery_work);
-
-	return ALARMTIMER_NORESTART;
 }
 
 static void sec_program_alarm(struct battery_data *battery, int seconds)
 {
 	ktime_t low_interval = ktime_set(seconds - 10, 0);
+	ktime_t slack = ktime_set(20, 0);
 	ktime_t next;
 
 	pr_debug("%s : sec_program_alarm.....\n", __func__);
 	next = ktime_add(battery->last_poll, low_interval);
-	alarm_start(&battery->alarm, next);
+	alarm_start_range(&battery->alarm, next, ktime_add(next, slack));
 }
 
 static
@@ -1724,7 +1723,7 @@ static void sec_bat_work(struct work_struct *work)
 	pr_debug("%s\n", __func__);
 
 	sec_bat_status_update(&battery->psy_battery);
-	battery->last_poll = ktime_get_boottime();
+	battery->last_poll = alarm_get_elapsed_realtime();
 
 	/* prevent suspend before starting the alarm */
 	local_irq_save(flags);
@@ -1794,7 +1793,7 @@ static void sec_cable_changed(struct battery_data *battery)
 	 * because ac/usb status readings may lag from irq.
 	 */
 
-	battery->last_poll = ktime_get_boottime();
+	battery->last_poll = alarm_get_elapsed_realtime();
 	sec_program_alarm(battery, FAST_POLL);
 }
 
@@ -2021,7 +2020,7 @@ static int sec_bat_read_proc(char *buf, char **start,
 	ktime_t ktime;
 	int len = 0;
 
-	ktime = ktime_get_boottime();
+	ktime = alarm_get_elapsed_realtime();
 	cur_time = ktime_to_timespec(ktime);
 
 	len = sprintf(buf,
@@ -2138,9 +2137,9 @@ static int __devinit sec_bat_probe(struct platform_device *pdev)
 
 	battery->padc = s3c_adc_register(pdev, NULL, NULL, 0);
 
-	battery->last_poll = ktime_get_boottime();
-	alarm_init(&battery->alarm, ALARM_BOOTTIME,
-		battery_event_alarm);
+	battery->last_poll = alarm_get_elapsed_realtime();
+	alarm_init(&battery->alarm, ANDROID_ALARM_ELAPSED_REALTIME_WAKEUP,
+		sec_battery_alarm);
 
 	ret = power_supply_register(&pdev->dev, &battery->psy_battery);
 	if (ret) {

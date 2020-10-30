@@ -559,7 +559,7 @@ static void wacom_i2c_set_input_values(struct i2c_client *client,
 	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
 
 	input_dev->evbit[0] |= BIT_MASK(EV_KEY);
-	//****************************************************************modifiziert*******************************
+
 	input_set_capability(input_dev, EV_SW, SW_PEN_INSERT);
 	input_set_capability(input_dev, EV_KEY, KEY_WAKEUP);
 	input_set_capability(input_dev, EV_KEY, KEY_BACK);

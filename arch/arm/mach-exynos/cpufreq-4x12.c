@@ -25,7 +25,7 @@
 #include <plat/clock.h>
 #include <plat/cpu.h>
 
-#ifdef CONFIG_OC
+#ifdef CONFIG_MACH_P4NOTE
 #define CPUFREQ_LEVEL_END	(L19 + 1)
 #else
 #define CPUFREQ_LEVEL_END	(L14 + 1)
@@ -51,7 +51,7 @@ struct cpufreq_clkdiv {
 
 static unsigned int exynos4x12_volt_table[CPUFREQ_LEVEL_END];
 
-#ifdef CONFIG_OC
+#ifdef CONFIG_MACH_P4NOTE
 static struct cpufreq_frequency_table exynos4x12_freq_table[] = {
 	{L0, 2000*1000},
 	{L1, 1920*1000},
@@ -150,7 +150,7 @@ static unsigned int clkdiv_cpu0_4212[CPUFREQ_LEVEL_END][8] = {
 	/* ARM L14: 200MHz */
 	{ 0, 1, 3, 0, 1, 1, 1, 0 },
 };
-#ifdef CONFIG_OC
+#ifdef CONFIG_MACH_P4NOTE
 static unsigned int clkdiv_cpu0_4412[CPUFREQ_LEVEL_END][8] = {
 	/*
 	 * Clock divider value for following
@@ -324,7 +324,7 @@ static unsigned int clkdiv_cpu1_4212[CPUFREQ_LEVEL_END][2] = {
 	{ 3, 0 },
 };
 
-#ifdef CONFIG_OC
+#ifdef CONFIG_MACH_P4NOTE
 static unsigned int clkdiv_cpu1_4412[CPUFREQ_LEVEL_END][3] = {
 	/* Clock divider value for following
 	 * { DIVCOPY, DIVHPM, DIVCORES }
@@ -444,7 +444,7 @@ static unsigned int clkdiv_cpu1_4412[CPUFREQ_LEVEL_END][3] = {
 };
 #endif
 
-#ifdef CONFIG_OC
+#ifdef CONFIG_MACH_P4NOTE
 static unsigned int exynos4x12_apll_pms_table[CPUFREQ_LEVEL_END] = {
 	/* APLL FOUT L0: 2000MHz */
     ((250<<16)|(3<<8)|(0x0)),
@@ -588,7 +588,7 @@ static const unsigned int asv_voltage_s[CPUFREQ_LEVEL_END] = {
 };
 
 /* ASV table for 12.5mV step */
- #ifdef CONFIG_OC
+ #ifdef CONFIG_MACH_P4NOTE
 static const unsigned int asv_voltage_step_12_5[CPUFREQ_LEVEL_END][12] = {
 	/*   ASV0,    ASV1,    ASV2,    ASV3,	 ASV4,	  ASV5,	   ASV6,    ASV7,    ASV8,    ASV9,   ASV10,   ASV11 */
 	{ 1500000, 1500000, 1500000, 1500000, 1500000, 1500000, 1500000, 1500000, 1500000, 1500000, 1500000, 1500000 }, /* 2000MHz */

@@ -20,7 +20,8 @@
 #include <linux/module.h>
 #include <linux/delay.h>
 #include <linux/gpio.h>
-#include <linux/earlysuspend.h>
+#include <linux/fb.h>
+#include <linux/notifier.h>
 #include <linux/i2c.h>
 #include <linux/input.h>
 #include <linux/input/mt.h>
@@ -225,7 +226,7 @@ struct synaptics_drv_data {
 	struct synaptics_platform_data *pdata;
 	struct mutex	mutex;
 	struct synaptics_ts_fw_block *fw;
-	struct wake_lock wakelock;
+	struct wakeup_source wakelock;
 	struct work_struct fw_update_work;
 	struct function_info f01;
 	struct function_info f11;
@@ -246,8 +247,9 @@ struct synaptics_drv_data {
 #endif
 	struct charger_callbacks callbacks;
 	struct finger_info	finger[MAX_MT_CNT];
-#if CONFIG_HAS_EARLYSUSPEND
-	struct early_suspend	early_suspend;
+#ifdef CONFIG_FB
+	struct notifier_block fb_notif;
+	bool fb_suspended;
 #endif
 #if defined(CONFIG_SEC_TOUCHSCREEN_DVFS_LOCK)
 	struct delayed_work dvfs_dwork;

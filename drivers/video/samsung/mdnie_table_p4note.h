@@ -1955,7 +1955,7 @@ static unsigned short tune_auto_ebook_cabc[] = {
 	END_SEQ, 0x0000
 };
 
-struct mdnie_tuning_info tuning_table[CABC_MAX][MODE_MAX][SCENARIO_MAX] = {
+struct mdnie_tuning_info tuning_table[CABC_MAX][MODE_MAX][OUTDOOR_MAX][SCENARIO_MAX] = {
 	{
 		{
 			{"dynamic_ui",		tune_dynamic_ui},

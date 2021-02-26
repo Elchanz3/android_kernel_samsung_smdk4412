@@ -25,7 +25,7 @@
 #include <plat/clock.h>
 #include <plat/cpu.h>
 
-#ifdef CONFIG_MACH_P4NOTE
+#if defined CONFIG_MACH_P4NOTE || defined CONFIG_MACH_KONA
 #define CPUFREQ_LEVEL_END	(L19 + 1)
 #else
 #define CPUFREQ_LEVEL_END	(L14 + 1)

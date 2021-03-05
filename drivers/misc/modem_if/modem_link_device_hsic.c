@@ -88,6 +88,12 @@ retry:
 
 	pm_runtime_get_sync(dev);
 
+	if (ld->mc->phone_state != STATE_ONLINE) {
+		mif_err("[MODEM_IF] MODEM is not online, skip start ipc\n");
+		err = -ENODEV;
+		goto exit;
+	}
+
 	mif_err("send 'a'\n");
 
 	skb = alloc_skb(16, GFP_ATOMIC);
@@ -704,11 +710,17 @@ static void link_pm_reconnect_work(struct work_struct *work)
 					link_reconnect_work.work);
 	struct modem_ctl *mc = if_usb_get_modemctl(pm_data);
 
-	if (!mc || pm_data->usb_ld->if_usb_connected)
-		return;
+	mif_info("\n");
 
-	if (pm_data->usb_ld->ld.com_state != COM_ONLINE)
+	if (!mc || pm_data->usb_ld->if_usb_connected) {
+		mif_err("mc or if_usb_connected is invalid\n");
 		return;
+	}
+
+	if (pm_data->usb_ld->ld.com_state != COM_ONLINE) {
+		mif_err("com_state is not COM_ONLINE\n");
+		return;
+	}
 
 	if (pm_data->link_reconnect_cnt--) {
 		if (mc->phone_state == STATE_ONLINE &&
@@ -968,6 +980,7 @@ static int link_pm_notifier_event(struct notifier_block *this,
 {
 	struct link_pm_data *pm_data =
 			container_of(this, struct link_pm_data,	pm_notifier);
+	struct usb_device *usbdev = pm_data->usb_ld->usbdev;
 	struct modem_ctl *mc = if_usb_get_modemctl(pm_data);
 
 	switch (event) {
@@ -1338,8 +1351,10 @@ static int __devinit if_usb_probe(struct usb_interface *intf,
 	}
 
 	/* HSIC main comm channel has been established */
-	if (pipe == IF_USB_CMD_EP)
+	if (pipe == IF_USB_CMD_EP) {
 		link_pm_change_modem_state(usb_ld->link_pm_data, STATE_ONLINE);
+		enable_irq(usb_ld->link_pm_data->irq_link_hostwake);
+	}
 
 	if (pipe == IF_USB_CMD_EP || info->intf_id == BOOT_DOWN)
 		usb_ld->if_usb_connected = 1;
@@ -1498,6 +1513,7 @@ static int usb_link_pm_init(struct usb_link_device *usb_ld, void *data)
 		mif_err("failed to enable_irq_wake:%d\n", r);
 		goto err_set_wake_irq;
 	}
+	disable_irq(pm_data->irq_link_hostwake);
 
 	/* create work queue & init work for runtime pm */
 	pm_data->wq = create_singlethread_workqueue("linkpmd");

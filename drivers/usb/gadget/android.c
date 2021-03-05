@@ -1240,8 +1240,6 @@ functions_show(struct device *pdev, struct device_attribute *attr, char *buf)
 	mutex_lock(&dev->mutex);
 
 	list_for_each_entry(conf, &dev->configs, list_item) {
-		printk(KERN_DEBUG "usb: %s enabled_func=%s\n",
-			__func__, f->name);
 		if (buff != buf)
 			*(buff-1) = ':';
 		list_for_each_entry(f, &conf->enabled_functions, enabled_list)
@@ -1249,9 +1247,6 @@ functions_show(struct device *pdev, struct device_attribute *attr, char *buf)
 	}
 
 	mutex_unlock(&dev->mutex);
-
-	if (buff != buf)
-		*(buff-1) = '\n';
 
 	return buff - buf;
 }
@@ -1638,12 +1633,15 @@ android_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *c)
 	gadget->ep0->driver_data = cdev;
 
 	list_for_each_entry(conf, &dev->configs, list_item)
-		list_for_each_entry(f, &conf->enabled_functions, enabled_list)
-			if (f->ctrlrequest) {
-				value = f->ctrlrequest(f, cdev, c);
-				if (value >= 0)
-					break;
-			}
+		if (&conf->usb_config == cdev->config)
+			list_for_each_entry(f,
+					    &conf->enabled_functions,
+					    enabled_list)
+				if (f->ctrlrequest) {
+					value = f->ctrlrequest(f, cdev, c);
+					if (value >= 0)
+						break;
+				}
 
 
 	/* Special case the accessory function.

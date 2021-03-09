@@ -1,9 +1,9 @@
 /*
- * Author: andip71, 14.01.2014
+ * Author: andip71, 26.08.2013
  * 
  * Modifications: Yank555.lu 20.08.2013
  *
- * Version 1.6.5
+ * Version 1.6.4
  *
  * credits: Supercurio for ideas and partially code from his Voodoo
  * 	    	sound implementation,
@@ -20,14 +20,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- */
-
-/*
- * Change log:
- * 
- * 1.6.5 (14.01.2014)
- *   - Allow speaker level minimum of 20
- * 
  */
 
 #include <sound/soc.h>

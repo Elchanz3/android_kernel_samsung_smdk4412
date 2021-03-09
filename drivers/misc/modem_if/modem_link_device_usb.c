@@ -508,7 +508,7 @@ static void wait_enumeration_work(struct work_struct *work)
 		struct usb_link_device, wait_enumeration.work);
 	if (usb_ld->if_usb_connected == 0) {
 		mif_err("USB disconnected and not enumerated for long time\n");
-		usb_change_modem_state(usb_ld, STATE_CRASH_RESET);
+		usb_change_modem_state(usb_ld, STATE_CRASH_EXIT);
 	}
 }
 
@@ -629,8 +629,6 @@ static void if_usb_disconnect(struct usb_interface *intf)
 		cancel_delayed_work_sync(&usb_ld->ld.tx_delayed_work);
 		usb_put_dev(usbdev);
 		usb_ld->usbdev = NULL;
-		schedule_delayed_work(&usb_ld->wait_enumeration,
-				msecs_to_jiffies(40000));
 		if (!has_hub(usb_ld)) {
 			if (pm_data->root_hub)
 				pm_runtime_forbid(pm_data->root_hub);
@@ -789,6 +787,7 @@ static int __devinit if_usb_probe(struct usb_interface *intf,
 		/* Queue work if skbs were pending before a disconnect/probe */
 		if (ld->sk_fmt_tx_q.qlen || ld->sk_raw_tx_q.qlen)
 			queue_delayed_work(ld->tx_wq, &ld->tx_delayed_work, 0);
+
 		usb_ld->if_usb_connected = 1;
 		/*USB3503*/
 		mif_debug("hub active complete\n");

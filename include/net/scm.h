@@ -16,6 +16,7 @@ struct scm_fp_list {
 	struct list_head	list;
 	short			count;
 	short			max;
+	struct user_struct	*user;
 	struct file		*fp[SCM_MAX_FD];
 };
 
@@ -50,15 +51,9 @@ static __inline__ void scm_set_cred(struct scm_cookie *scm,
 {
 	scm->pid  = get_pid(pid);
 	scm->cred = cred ? get_cred(cred) : NULL;
-	cred_to_ucred(pid, cred, &scm->creds, false);
-}
-
-static __inline__ void scm_set_cred_noref(struct scm_cookie *scm,
-				    struct pid *pid, const struct cred *cred)
-{
-	scm->pid  = pid;
-	scm->cred = cred;
-	cred_to_ucred(pid, cred, &scm->creds);
+	scm->creds.pid = pid_vnr(pid);
+	scm->creds.uid = cred ? cred->euid : INVALID_UID;
+	scm->creds.gid = cred ? cred->egid : INVALID_GID;
 }
 
 static __inline__ void scm_destroy_cred(struct scm_cookie *scm)

@@ -2855,6 +2855,7 @@ CONFIG_MACH_NO_WESTBRIDGE=y
 # CONFIG_USB_ENESTORAGE is not set
 # CONFIG_BCM_WIMAX is not set
 # CONFIG_FT1000 is not set
+CONFIG_ANDROID_DONT_KILL_MAGISK=y
 
 #
 # Speakup console speech

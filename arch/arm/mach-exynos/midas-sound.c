@@ -63,7 +63,7 @@
 
 static bool midas_snd_mclk_enabled;
 
-#if defined(CONFIG_FM_SI4705)
+#if defined(CONFIG_FM_SI4705_MODULE)
 struct si47xx_info {
 #if defined(CONFIG_MACH_M0) || defined(CONFIG_MACH_M0_CTC)
 	int gpio_sw;

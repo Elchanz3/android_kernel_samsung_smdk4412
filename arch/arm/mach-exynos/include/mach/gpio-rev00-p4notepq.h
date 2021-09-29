@@ -159,7 +159,7 @@ extern void midas_config_sleep_gpio_table(void);
 #define GPIO_PEN_SDA_28V	EXYNOS4_GPC1(3)
 #define GPIO_PEN_SCL_28V	EXYNOS4_GPC1(4)
 #define GPIO_S_PEN_IRQ		EXYNOS4_GPX1(5)
-#if defined(CONFIG_QC_MODEM)
+#if defined(CONFIG_MACH_P4NOTELTE_USA_VZW)
 #define GPIO_PEN_FWE0		EXYNOS4_GPA0(5)
 #endif
 

@@ -94,7 +94,7 @@
 #ifdef CONFIG_SEC_TOUCHSCREEN_DVFS_LOCK
 #define SEC_BUS_LOCK
 #endif
-#if defined(CONFIG_MACH_P4NOTELTE_USA_VZW)
+#if defined(CONFIG_QC_MODEM)
 #define WACOM_HAVE_FWE_PIN
 #endif
 #define BATTERY_SAVING_MODE

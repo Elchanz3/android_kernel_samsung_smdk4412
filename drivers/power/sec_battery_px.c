@@ -24,7 +24,7 @@
 #include <linux/jiffies.h>
 #include <linux/irq.h>
 #include <linux/wakelock.h>
-#include <linux/android_alarm.h>
+#include <linux/alarmtimer.h>
 #include <asm/mach-types.h>
 #include <mach/hardware.h>
 #include <linux/fb.h>
@@ -277,7 +277,7 @@ static void sec_set_charging(struct battery_data *battery, int charger_type)
 }
 #endif
 
-static void sec_battery_alarm(struct alarm *alarm)
+static enum alarmtimer_restart battery_event_alarm(struct alarm *alarm)
 {
 	struct battery_data *battery =
 			container_of(alarm, struct battery_data, alarm);
@@ -285,17 +285,18 @@ static void sec_battery_alarm(struct alarm *alarm)
 	pr_debug("%s : sec_battery_alarm.....\n", __func__);
 	__pm_stay_awake(&battery->work_wake_lock);
 	schedule_work(&battery->battery_work);
+
+	return ALARMTIMER_NORESTART;
 }
 
 static void sec_program_alarm(struct battery_data *battery, int seconds)
 {
 	ktime_t low_interval = ktime_set(seconds - 10, 0);
-	ktime_t slack = ktime_set(20, 0);
 	ktime_t next;
 
 	pr_debug("%s : sec_program_alarm.....\n", __func__);
 	next = ktime_add(battery->last_poll, low_interval);
-	alarm_start_range(&battery->alarm, next, ktime_add(next, slack));
+	alarm_start(&battery->alarm, next);
 }
 
 static
@@ -2140,8 +2141,8 @@ static int __devinit sec_bat_probe(struct platform_device *pdev)
 	battery->padc = s3c_adc_register(pdev, NULL, NULL, 0);
 
 	battery->last_poll = alarm_get_elapsed_realtime();
-	alarm_init(&battery->alarm, ANDROID_ALARM_ELAPSED_REALTIME_WAKEUP,
-		sec_battery_alarm);
+	alarm_init(&battery->alarm, ALARM_BOOTTIME,
+		battery_event_alarm);
 
 	ret = power_supply_register(&pdev->dev, &battery->psy_battery);
 	if (ret) {

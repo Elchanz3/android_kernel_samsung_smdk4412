@@ -5063,6 +5063,9 @@ static int __sched_setscheduler(struct task_struct *p, int policy,
 	/* may grab non-irq protected spin_locks */
 	BUG_ON(in_interrupt());
 recheck:
+	printk(KERN_INFO "__sched_setscheduler: policy:%d user:%d priority:%d rt_bandwith_enabled:%d rt_policy: %d rt_runtime:%d autogroup:%d",
+		policy, user ? 1 : 0, param->sched_priority, rt_bandwidth_enabled(), rt_policy(policy),
+		task_group(p)->rt_bandwidth.rt_runtime, task_group_is_autogroup(task_group(p) ? 1 : 0));
 	/* double check policy once rq lock held */
 	if (policy < 0) {
 		reset_on_fork = p->sched_reset_on_fork;

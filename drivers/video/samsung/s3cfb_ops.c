@@ -1105,14 +1105,20 @@ int s3cfb_pan_display(struct fb_var_screeninfo *var, struct fb_info *fb)
 	struct s3cfb_global *fbdev = get_fimd_global(win->id);
 	struct s3c_platform_fb *pdata = to_fb_plat(fbdev->dev);
 
-	if (win->id == pdata->default_win)
+dev_err(fbdev->dev, "%s: -- Start -- , fb%d, win%d\n", __func__, fb->node, win->id);
+
+	if (win->id == pdata->default_win) {
+		dev_err(fbdev->dev, "%s: -- lock 1 -- , fb%d, win%d\n", __func__, fb->node, win->id);
 		spin_lock(&fbdev->slock);
+	}
 
 #ifdef CONFIG_EXYNOS_DEV_PD
 	if (unlikely(fbdev->system_state == POWER_OFF) || fbdev->regs == 0) {
 		dev_err(fbdev->dev, "%s::system_state is POWER_OFF, fb%d, win%d\n", __func__, fb->node, win->id);
-		if (win->id == pdata->default_win)
+		if (win->id == pdata->default_win) {
+			dev_err(fbdev->dev, "%s: -- Unlock 2 -- , fb%d, win%d\n", __func__, fb->node, win->id);
 			spin_unlock(&fbdev->slock);
+		}
 		return -EINVAL;
 	}
 #endif
@@ -1126,16 +1132,20 @@ int s3cfb_pan_display(struct fb_var_screeninfo *var, struct fb_info *fb)
 
 	if (var->yoffset + var->yres > var->yres_virtual) {
 		dev_err(fbdev->dev, "invalid yoffset value\n");
-		if (win->id == pdata->default_win)
+		if (win->id == pdata->default_win) {
+			dev_err(fbdev->dev, "%s: -- Unlock 3 -- , fb%d, win%d\n", __func__, fb->node, win->id);
 			spin_unlock(&fbdev->slock);
+		}
 		return -EINVAL;
 	}
 
 #if defined(CONFIG_CPU_EXYNOS4210)
 	if (unlikely(var->xoffset + var->xres > var->xres_virtual)) {
 		dev_err(fbdev->dev, "invalid xoffset value\n");
-		if (win->id == pdata->default_win)
+		if (win->id == pdata->default_win) {
+			dev_err(fbdev->dev, "%s: -- Unlock 4 -- , fb%d, win%d\n", __func__, fb->node, win->id);
 			spin_unlock(&fbdev->slock);
+		}
 		return -EINVAL;
 	}
 	fb->var.xoffset = var->xoffset;
@@ -1148,8 +1158,12 @@ int s3cfb_pan_display(struct fb_var_screeninfo *var, struct fb_info *fb)
 
 	s3cfb_set_buffer_address(fbdev, win->id);
 
-	if (win->id == pdata->default_win)
+	if (win->id == pdata->default_win) {
+		dev_err(fbdev->dev, "%s: -- Unlock 5 -- , fb%d, win%d\n", __func__, fb->node, win->id);
 		spin_unlock(&fbdev->slock);
+	}
+
+dev_err(fbdev->dev, "%s: -- End -- , fb%d, win%d\n", __func__, fb->node, win->id);
 	return 0;
 }
 

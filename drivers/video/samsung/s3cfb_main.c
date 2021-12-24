@@ -628,14 +628,14 @@ dev_info(info->dev, "+%s - 20\n", __func__);
 		if (fbdev[i]->regs) {
 dev_info(info->dev, "+%s - 21\n", __func__);
 			fbdev[i]->regs_org = fbdev[i]->regs;
-dev_info(info->dev, "+%s - 22 -- Locking --\n", __func__);
+dev_info(info->dev, "+%s - 22 -- Locking -- slock:%d SKIP\n", __func__, &fbdev[i]->slock);
 
-			spin_lock(&fbdev[i]->slock);
-dev_info(info->dev, "+%s - 23 -- Locked\n", __func__);
+//			spin_lock(&fbdev[i]->slock);
+dev_info(info->dev, "+%s - 23 -- Locked --  SKIPPED\n", __func__);
 			fbdev[i]->regs = 0;
-dev_info(info->dev, "+%s - 24 -- Unlocking\n", __func__);
-			spin_unlock(&fbdev[i]->slock);
-dev_info(info->dev, "+%s - 25 -- Unlocked\n", __func__);
+dev_info(info->dev, "+%s - 24 -- Unlocking SKIP\n", __func__);
+//			spin_unlock(&fbdev[i]->slock);
+dev_info(info->dev, "+%s - 25 -- Unlocked  SKIPPED\n", __func__);
 		}
 
 dev_info(info->dev, "+%s - 26\n", __func__);

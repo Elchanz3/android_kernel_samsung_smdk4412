@@ -340,6 +340,7 @@ static void keyboard_fb_suspend(struct sec_keyboard_drvdata *data)
 		if (data->univ_kbd_dock == false)
 			sec_keyboard_tx(data, 0x10);	/* the idle mode */
 	}
+	printk(KERN_DEBUG "[Keyboard] %s", __func__);
 	data->fb_suspended = true;
 }
 

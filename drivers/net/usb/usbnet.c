@@ -1620,24 +1620,21 @@ EXPORT_SYMBOL_GPL(usbnet_resume);
 
 /*-------------------------------------------------------------------------*/
 
-extern int rmnet_usb_init(void);
-extern void rmnet_usb_exit(void);
-
-int usbnet_init(void)
+static int __init usbnet_init(void)
 {
 	/* Compiler should optimize this out. */
 	BUILD_BUG_ON(
 		FIELD_SIZEOF(struct sk_buff, cb) < sizeof(struct skb_data));
 
 	random_ether_addr(node_id);
-	rmnet_usb_init();
 	return 0;
 }
+module_init(usbnet_init);
 
-void usbnet_exit(void)
+static void __exit usbnet_exit(void)
 {
-	rmnet_usb_exit();
 }
+module_exit(usbnet_exit);
 
 MODULE_AUTHOR("David Brownell");
 MODULE_DESCRIPTION("USB network driver framework");

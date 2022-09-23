@@ -999,10 +999,8 @@ static void usb_debugfs_cleanup(void)
 	debugfs_remove(usb_debug_root);
 }
 
-#ifdef CONFIG_USB_USBNET
 extern int usbnet_init(void);
 extern void usbnet_exit(void);
-#endif
 
 /*
  * Init
@@ -1060,9 +1058,7 @@ bus_notifier_failed:
 bus_register_failed:
 	usb_debugfs_cleanup();
 out:
-#ifdef CONFIG_USB_USBNET
 	usbnet_init();
-#endif
 	return retval;
 }
 
@@ -1075,9 +1071,7 @@ static void __exit usb_exit(void)
 	if (nousb)
 		return;
 
-#ifdef CONFIG_USB_USBNET
 	usbnet_exit();
-#endif
 
 	usb_deregister_device_driver(&usb_generic_driver);
 	usb_major_cleanup();

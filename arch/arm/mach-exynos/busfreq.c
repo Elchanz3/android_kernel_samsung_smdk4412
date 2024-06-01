@@ -102,15 +102,10 @@ struct busfreq_table {
 };
 
 static struct busfreq_table exynos4_busfreq_table[] = {
-	{LV_0, 400000, 1100000, 0, 0},
-	{LV_1, 267000, 1000000, 0, 0},
-#ifdef CONFIG_BUSFREQ_L2_160M
-	/*L2: 160MHz */
-	{LV_2, 160000, 1000000, 0, 0},
-#else
-	/* L2: 133MHz */
-	{LV_2, 133000, 950000, 0, 0},
-#endif
+        {LV_0, 533000, 1200000, 0, 0},
+	{LV_1, 400000, 1100000, 0, 0},
+	{LV_2, 267000, 1000000, 0, 0},
+	{LV_3, 133000, 950000, 0, 0},
 	{0, 0, 0, 0, 0},
 };
 
@@ -169,6 +164,7 @@ static unsigned int exynos4_qos_value[BUS_QOS_MAX][LV_END][4] = {
 
 #define ASV_GROUP	5
 static unsigned int exynos4_asv_volt[ASV_GROUP][LV_END] = {
+        {1200000, 1050000, 1050000},
 	{1150000, 1050000, 1050000},
 	{1125000, 1025000, 1025000},
 	{1100000, 1000000, 1000000},
@@ -182,20 +178,18 @@ static unsigned int clkdiv_dmc0[LV_END][8] = {
 	 * { DIVACP, DIVACP_PCLK, DIVDPHY, DIVDMC, DIVDMCD
 	 *              DIVDMCP, DIVCOPY2, DIVCORE_TIMERS }
 	 */
+	 
+	/* DMC L0: 533MHz */
+	{ 2, 2, 1, 1, 1, 1, 3, 1 },
 
-	/* DMC L0: 400MHz */
+	/* DMC L1: 400MHz */
 	{ 3, 2, 1, 1, 1, 1, 3, 1 },
 
-	/* DMC L1: 266.7MHz */
+	/* DMC L2: 266.7MHz */
 	{ 4, 2, 1, 2, 1, 1, 3, 1 },
 
-#ifdef CONFIG_BUSFREQ_L2_160M
-	/* DMC L2: 160MHz */
-	{ 5, 1, 1, 4, 1, 1, 3, 1 },
-#else
-	/* DMC L2: 133MHz */
+	/* DMC L3: 133MHz */
 	{ 5, 2, 1, 5, 1, 1, 3, 1 },
-#endif
 };
 
 static unsigned int clkdiv_top[LV_END][5] = {
@@ -203,22 +197,28 @@ static unsigned int clkdiv_top[LV_END][5] = {
 	 * Clock divider value for following
 	 * { DIVACLK200, DIVACLK100, DIVACLK160, DIVACLK133, DIVONENAND }
 	 */
-
-	/* ACLK200 L0: 200MHz */
+         
+         /* ACLK200 L0: 266MHz */
+	{ 2, 7, 4, 5, 1 },
+      
+	/* ACLK200 L1: 200MHz */
 	{ 3, 7, 4, 5, 1 },
 
-	/* ACLK200 L1: 160MHz */
+	/* ACLK200 L2: 160MHz */
 	{ 4, 7, 5, 6, 1 },
 
-	/* ACLK200 L2: 133MHz */
+	/* ACLK200 L3: 133MHz */
 	{ 5, 7, 7, 7, 1 },
 };
 
-static unsigned int clkdiv_lr_bus[LV_END][2] = {
+static unsigned int clkdiv_lr_bus[LV_END][3] = {
 	/*
 	 * Clock divider value for following
 	 * { DIVGDL/R, DIVGPL/R }
 	 */
+	 
+	/* ACLK_GDL/R L0: 266MHz */
+	{ 2, 1 },
 
 	/* ACLK_GDL/R L1: 200MHz */
 	{ 3, 1 },
@@ -405,7 +405,7 @@ static int busfreq_target(struct busfreq_table *freq_table,
 		if (target_freq >= freq_table[pre_idx].mem_clk) {
 			for (i = 0; (freq_table[i].mem_clk != 0); i++) {
 				unsigned int freq = freq_table[i].mem_clk;
-
+{LV_0, 400000, 1100000, 0, 0},
 				if (freq <= target_freq) {
 					idx = i;
 					break;

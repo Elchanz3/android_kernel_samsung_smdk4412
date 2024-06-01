@@ -174,7 +174,7 @@ REGULATOR_INIT(ldo11, "VABB1_1.95V", 1950000, 1950000, 1,
 	       REGULATOR_CHANGE_STATUS, 1);
 REGULATOR_INIT(ldo12, "VUOTG_3.0V", 3000000, 3000000, 1,
 	       REGULATOR_CHANGE_STATUS, 0);
-REGULATOR_INIT(ldo13, "OIS_1.5V", 1500000, 1500000, 0,
+REGULATOR_INIT(ldo13, "OIS_1.5V", 1590000, 1590000, 0,
 	       REGULATOR_CHANGE_STATUS, 0);
 REGULATOR_INIT(ldo14, "VABB2_1.95V", 1950000, 1950000, 1,
 	       REGULATOR_CHANGE_STATUS, 1);
@@ -199,7 +199,7 @@ static struct regulator_init_data max77686_buck1_data = {
 	.constraints = {
 		.name = "vdd_mif range",
 		.min_uV = 850000,
-		.max_uV = 1050000,
+		.max_uV = 1200000,
 		.always_on = 1,
 		.boot_on = 1,
 		.valid_ops_mask = REGULATOR_CHANGE_VOLTAGE,
@@ -212,7 +212,7 @@ static struct regulator_init_data max77686_buck2_data = {
 	.constraints = {
 		.name = "vdd_arm range",
 		.min_uV = 850000,
-		.max_uV = 1500000,
+		.max_uV = 1590000,
 		.apply_uV = 1,
 		.always_on = 1,
 		.boot_on = 1,
@@ -611,7 +611,7 @@ S5M_REGULATOR_INIT(s5m_ldo25, "CAM_SENSOR_CORE_1.2V", 1200000, 1200000, 0,
 	       REGULATOR_CHANGE_STATUS, 1);
 S5M_REGULATOR_INIT(s5m_ldo26, "CAM_SENSOR_1.8V", 1800000, 1800000, 0,
 	       REGULATOR_CHANGE_STATUS, 1);
-S5M_REGULATOR_INIT(s5m_ldo27, "OIS_1.5V", 1500000, 1500000, 0,
+S5M_REGULATOR_INIT(s5m_ldo27, "OIS_1.5V", 1590000, 1590000, 0,
 	       REGULATOR_CHANGE_STATUS, 1);
 S5M_REGULATOR_INIT(s5m_ldo28, "TSP_VDD_1.8V", 1800000, 1800000, 0,
 	       REGULATOR_CHANGE_STATUS, 1);

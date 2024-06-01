@@ -92,7 +92,7 @@ static struct sleep_save exynos4_clock_save[] = {
 
 struct clk exynos4_clk_sclk_hdmi27m = {
 	.name		= "sclk_hdmi27m",
-	.rate		= 27000000,
+	.rate		= 32000000,
 };
 
 struct clk exynos4_clk_sclk_hdmiphy = {
@@ -101,7 +101,7 @@ struct clk exynos4_clk_sclk_hdmiphy = {
 
 struct clk exynos4_clk_sclk_usbphy0 = {
 	.name		= "sclk_usbphy0",
-	.rate		= 27000000,
+	.rate		= 32000000,
 };
 
 struct clk exynos4_clk_sclk_usbphy1 = {
@@ -288,7 +288,7 @@ struct clksrc_clk exynos4_clk_sclk_apll = {
 struct clksrc_clk exynos4_clk_audiocdclk0 = {
 	.clk	= {
 		.name		= "audiocdclk",
-		.rate		= 16934400,
+		.rate		= 23934400,
 	},
 };
 
@@ -2382,7 +2382,7 @@ void __init_or_cpufreq exynos4_setup_clocks(void)
 	clk_fout_vpll.enable = exynos4_clk_vpll_ctrl;
 	clk_fout_vpll.ops = &exynos4_vpll_ops;
 
-	clk_set_rate(&exynos4_clk_sclk_apll.clk, 100000000);
+	clk_set_rate(&exynos4_clk_sclk_apll.clk, 180000000);
 
 	for (ptr = 0; ptr < ARRAY_SIZE(exynos4_clksrcs); ptr++)
 		s3c_set_clksrc(&exynos4_clksrcs[ptr], true);

@@ -495,7 +495,7 @@ static struct regulator_consumer_supply s5m_ldo14_supply[] = {
 };
 
 static struct regulator_consumer_supply s5m_ldo19_supply[] = {
-	REGULATOR_SUPPLY("lcd_io_1.8v", NULL),
+	REGULATOR_SUPPLY("lcd_io_1.75v", NULL),
 };
 
 static struct regulator_consumer_supply s5m_ldo20_supply[] = {
@@ -595,7 +595,7 @@ S5M_REGULATOR_INIT(s5m_ldo12, "VUOTG_3.0V", 3000000, 3000000, 1,
 	       REGULATOR_CHANGE_STATUS, 0);
 S5M_REGULATOR_INIT(s5m_ldo14, "VABB2_1.95V", 1950000, 1950000, 1,
 	       REGULATOR_CHANGE_STATUS, 1);
-S5M_REGULATOR_INIT(s5m_ldo19, "LCD_IO_1.8V", 1800000, 1800000, 0,
+S5M_REGULATOR_INIT(s5m_ldo19, "LCD_IO_1.75V", 1750000, 1750000, 0,
 	       REGULATOR_CHANGE_STATUS, 1);
 S5M_REGULATOR_INIT(s5m_ldo20, "TSP_AVDD_3.3V", 3300000, 3300000, 0,
 	       REGULATOR_CHANGE_STATUS, 1);

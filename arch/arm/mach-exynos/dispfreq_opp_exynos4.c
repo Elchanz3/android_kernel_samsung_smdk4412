@@ -87,8 +87,8 @@ enum exynos4_dispfreq_clk_level_idx {
 };
 
 static struct exynos4_dispfreq_opp_table exynos_dispfreq_clk_table[] = {
-	{LV_0, 40, 0 },
-	{LV_1, 60, 0 },
+	{LV_0, 80, 0 },
+	{LV_1, 133, 0 },
 	{0, 0, 0 },
 };
 
@@ -106,14 +106,17 @@ int exynos4_busfreq_lock(unsigned int nId, enum busfreq_level_request lvl)
 
 	switch (lvl) {
 	case BUS_L0:
-#if 0
+		qos_value = 533000;
+		break;
+	
+	case BUS_L1:
 		qos_value = 400000;
 		break;
-#endif
-	case BUS_L1:
+
+	case BUS_L2:
 		qos_value = 267000;
 		break;
-	case BUS_L2:
+	case BUS_L3:
 		qos_value = 133000;
 		break;
 	default:
